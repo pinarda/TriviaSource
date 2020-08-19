@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Ideas
 
 Plot all mean scores (as line plots) on same plot - hover to highlight a single plot (https://stackoverflow.com/questions/52532428/highlight-all-values-from-a-group-on-hover)
+we might not be able to do this with a static site, look into it
 
 Get round labeled and do stuff (bias table/plot for round types maybe)
 

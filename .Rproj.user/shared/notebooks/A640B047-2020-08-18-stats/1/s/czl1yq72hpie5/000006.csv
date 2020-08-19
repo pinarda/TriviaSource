@@ -1,6 +1,11 @@
 "0","source(""trivia_stats.R"")
 "
-"2","Registered S3 method overwritten by 'dplyr':
-  method           from
-  print.rowwise_df     
+"2","
+Attaching package: ‘plyr’
+
+"
+"2","The following objects are masked from ‘package:plotly’:
+
+    arrange, mutate, rename, summarise
+
 "

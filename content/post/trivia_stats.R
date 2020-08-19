@@ -1,13 +1,17 @@
 library(plyr)
 library(rlang)
+library(plotly)
 library(ggplot2)
+library(RColorBrewer)
+library(heatmaply)
+
 
 # should match excel sheet names
-dates=c("March18", "March25", "April1", "April8", "April15", "April22", "April29", "May6", "May13", "May20", "May27", "June3", "June10", "June24", "July2", "July9", "July15", "July22", "July29")
+dates=c("March18", "March25", "April1", "April8", "April15", "April22", "April29", "May6", "May13", "May20", "May27", "June3", "June10", "June24", "July2", "July9", "July15", "July22", "July29", "August5", "August12")
 
 # to get id:
 # right click on file in drive -> get shareable link -> copy id substring
-google_ids=c("1B8jDE1_m9ilwz2c3L__vRBVNlFRkYFY-", "1oYpePFo3TofyYfukndqi7cNR7d19NH9Y", "1qZAzHPoLqWtY-MwiiEzC2cwd2f57uCiP", "1SXQ46m6kqOu3N7uzghNcscKAe171TDz5", "1BSo_bW-Armwnn6qy3fPTimGLontMTTVa", "1mrl_UgL-PGat2d586NfNlXT6OfXkXDtZ", "11RXp1dqKN8DDiFfq0lKrACmbeb_yb-W2", "1KuFoEDJFprCrkGUzE7Bp_9V5Q_nDuA4T", "11RkmBiMfCrOeV1dY2C3l_KUTqAXT8s8R", "1-N2R3ZJp-ahf7WRJa9ODjVP7QaTNHShD", "1J0Kx3Kf-4kTb-tjvxbDMsz0gtU_CoFMM", "1gK9k4eVfbQ1U7SuQD9CWrysrIapHSK_Y", "1SlbPlTn8iIj1OA7pAkK9C9IepnX_rzob", "1MdkoCG544dbT0gwGNFNMwFTIHQjgW3Bg", "1mrwkdVQKv1wFMICeyE_eCD1NyAmpcRii", "14ldPagW4XGJTkKqv916fuQY3fB-lqqMn", "1v0GG0YjOwkSr1HML68P8cLTjtj8G8Owp", "1kEMwWBd0OWxnSdqjHarap-Oh0fT7rGR9")
+google_ids=c("1B8jDE1_m9ilwz2c3L__vRBVNlFRkYFY-", "1oYpePFo3TofyYfukndqi7cNR7d19NH9Y", "1qZAzHPoLqWtY-MwiiEzC2cwd2f57uCiP", "1SXQ46m6kqOu3N7uzghNcscKAe171TDz5", "1BSo_bW-Armwnn6qy3fPTimGLontMTTVa", "1mrl_UgL-PGat2d586NfNlXT6OfXkXDtZ", "11RXp1dqKN8DDiFfq0lKrACmbeb_yb-W2", "1KuFoEDJFprCrkGUzE7Bp_9V5Q_nDuA4T", "11RkmBiMfCrOeV1dY2C3l_KUTqAXT8s8R", "1-N2R3ZJp-ahf7WRJa9ODjVP7QaTNHShD", "1J0Kx3Kf-4kTb-tjvxbDMsz0gtU_CoFMM", "1gK9k4eVfbQ1U7SuQD9CWrysrIapHSK_Y", "1SlbPlTn8iIj1OA7pAkK9C9IepnX_rzob", "1MdkoCG544dbT0gwGNFNMwFTIHQjgW3Bg", "1mrwkdVQKv1wFMICeyE_eCD1NyAmpcRii", "14ldPagW4XGJTkKqv916fuQY3fB-lqqMn", "1v0GG0YjOwkSr1HML68P8cLTjtj8G8Owp", "1kEMwWBd0OWxnSdqjHarap-Oh0fT7rGR9", "1XpcLhGJGZ1Pphk_EXJBgB9njYkm9Y0G4", "1SLj6bd9OBZTbXwIpSHcxPg75mvBqA8jo")
 
 players=c("Zach", "Megan", "Ichigo", "Jenny", "Mom", "Dad", "Chris", "Alex", "Jeff", "Drew")
 
@@ -295,7 +299,7 @@ generate_creator_plot <- function(creator){
   
   mean_data = data.frame(seq(1:length(means)), means)
   # partially transparent points by setting `alpha = 0.5`
-  ggplot(data.frame(xs, ys), aes(xs, ys)) +
+   p <- ggplot(data.frame(xs, ys), aes(xs, ys)) +
     geom_point(position=position_jitter(w=0.05, h=0.05),
                shape = 21, alpha = 0.5, size = 3, colour="#01587A", fill="#077DAA") +
     theme_bw() +
@@ -306,7 +310,51 @@ generate_creator_plot <- function(creator){
     ggtitle(label=paste("How well everyone did on", creator, "'s Rounds"), subtitle = "(red points represent the average)") + 
     theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) + 
     ylim(-0.1, 10.1) 
-    
+   
+   ggplotly(p)
+}
+
+creator_mean_data <- function(creator){
+  u = sapply(dates, function(creator, date){s = get_creator_round_scores(creator, date)
+  t = unlist(s[!is.na(s)], use.names=FALSE)}, creator=creator)
+  xs <- double()
+  ys <- double()
+  means <- double()
+  for (i in 1:length(dates)){
+    d = dates[i]
+    xvals = rep(i, length(unlist(u[d], use.names = FALSE)))
+    yvals = unlist(u[d], use.names = FALSE)
+    xs <- c(xs, xvals)
+    ys <- c(ys, yvals)
+    means <- c(means, mean(yvals))
+  }
+  
+  mean_data = data.frame(weeks=seq(1:length(means)), means, groups=creator)
+  return(mean_data)
+}
+
+creator_overlay_plot <- function(){
+  da = lapply(players, creator_mean_data)
+  all_data = rbind(da[[1]], da[[2]], da[[3]], da[[4]], da[[5]], da[[6]], da[[7]], da[[8]], da[[9]], da[[10]])
+  d = highlight_key(all_data, ~groups)
+  # partially transparent points by setting `alpha = 0.5`
+  p <- ggplot(d, aes(x=weeks, y=means, group=groups))+
+    geom_point(shape = 21, alpha = 0.5, size = 3, colour="#01587A", fill="#077DAA") +
+    geom_line(data=d,aes(x=weeks, y=means), colour="#077DAA") +
+    ylim(-0.1, 10.1) +
+    theme_bw() +
+    xlab("Trivia Week") + 
+    ylab("Round Score") + 
+    ggtitle(label=paste("How well everyone did on everyone else's Rounds (hover to see detail)")) + 
+    theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust = 0.5)) 
+  
+  gg <- ggplotly(p, tooltip="groups")
+  highlight( gg, on = "plotly_hover", off = "plotly_deselect", color = "red" )
+}
+
+bias_table_heatmap <- function(){
+  coul <- colorRampPalette(brewer.pal(8, "PiYG"))(25)
+  heatmaply(bt, dendrogram = "none", labCol = colnames(bt), labRow = rownames(bt), colors=coul, xlab="Creator", ylab="Player", main="Bias Table")
 }
 
 # don't run this too much or google gets upset
@@ -317,4 +365,7 @@ if(IS_GOOGLE_UPSET){
 }
 
 scores = lapply(filenames, read.csv)
+bt = bias_table()
+bt[4, 4] = NA # Jenny had a bias on her own rounds, this is a hack
+
 

@@ -1,5 +1,5 @@
 ---
-title: "Viewing Creator Plots"
+title: "Trivia Plots"
 author: "Alex Pinard"
 date: "2020-08-18"
 output: html_document
@@ -10,15 +10,31 @@ knitr::opts_chunk$set(echo = TRUE,
                       warning = FALSE)
 ```
 
-## Plotting the Scores on a Creator's Round
-
 First, load the trivia_stats.R source file, which contains all functions for generating statistics:
 
-```{r}
+```{r, results="hide", message=FALSE}
 source("trivia_stats.R")
 ```
 
-Then run generate_creator_plot(CREATOR_NAME):
+## Bias Heatmap
+
+Each column represents the scores on one person's round that week. Higher scores in a cell mean that the player scores higher than the average on that player's rounds.
+
+Score Per Round = Average Player Ability + Round Difficulty + Bias + Randomness
+
+```{r}
+bias_table_heatmap()
+```
+
+## Scores on a Creator's Round
+
+This plot displays the average score on each round by week. Hover over a point to see the creator for that round.
+
+```{r}
+creator_overlay_plot()
+```
+
+Each of the following plots shows the scores on the rounds created by one person each week. The red line represents the average for that week, and the blue dots are individual scores that week (they need to be labeled at some point):
 
 ```{r paged.print=TRUE}
 generate_creator_plot("Alex")
