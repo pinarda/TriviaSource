@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1597804936619.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "C137FA5E",
+    "lastKnownWriteTime" : 1597806162,
+    "last_content_update" : 1597806162880,
+    "path" : "~/git/Trivia/source/content/post/2020-08-18-stats.Rmd",
+    "project_path" : "content/post/2020-08-18-stats.Rmd",
+    "properties" : {
+        "cursorPosition" : "24,30",
+        "last_setup_crc32" : "",
+        "scrollLine" : "2",
+        "tempName" : "Untitled1"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

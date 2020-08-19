@@ -1,0 +1,42 @@
+knitr::opts_chunk$set(echo = TRUE,
+warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE,
+warning = FALSE)
+## Viewing Creator Plots
+First, load the trivia_stats.R source file, which contains all functions for generating statistics:
+```{r, echo=False}
+source("trivia_stats.R")
+install.packages("rlang")
+install.packages("rlang")
+knitr::opts_chunk$set(echo = TRUE,
+warning = FALSE)
+generate_creator_plot("Alex")
+install.packages("ggplot2")
+generate_creator_plot("Alex")
+source("trivia_stats.R")
+generate_creator_plot("Alex")
+generate_creator_plot("Alex")
+generate_creator_plot("Chris")
+blogdown::serve_site()
+source('~/.active-rstudio-document', echo=TRUE)
+source('~/.active-rstudio-document', echo=TRUE)
+source("trivia_stats.R")
+blogdown::serve_site()
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE,
+warning = FALSE)
+## Viewing Creator Plots
+First, load the trivia_stats.R source file, which contains all functions for generating statistics:
+```{r, echo=FALSE}
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE,
+warning = FALSE)
+## Viewing Creator Plots
+First, load the trivia_stats.R source file, which contains all functions for generating statistics:
+```{r, echo=FALSE}
+source("trivia_stats.R")
+source("trivia_stats.R")

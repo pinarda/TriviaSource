@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1597805215236.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4089843624",
+    "id" : "B81A91BE",
+    "lastKnownWriteTime" : 1597802205,
+    "last_content_update" : 1597802205,
+    "path" : "~/git/Trivia/source/2020-09-18-r-rmarkdown.Rmd",
+    "project_path" : "2020-09-18-r-rmarkdown.Rmd",
+    "properties" : {
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
