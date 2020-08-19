@@ -5,8 +5,11 @@
          height="{{ .Site.Params.logo.height }}"
          alt="{{ .Site.Params.logo.alt }}">
   </a>
+  
+  <ul margin="auto" display="block">hi</ul>
 
-  <ul class="nav-links">
+  <ul class="nav-links" displ
+  y="block">
     {{ range .Site.Menus.main }}
     <li><a href="{{ .URL }}">{{ .Name }}</a></li>
     {{ end }}

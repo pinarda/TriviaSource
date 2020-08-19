@@ -1,0 +1,24 @@
+---
+title: "02 - Notes and Ideas"
+author: "Alex Pinard"
+date: "2020-08-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Ideas
+
+Get rounds labeled and do stuff (bias table/plot for round types maybe)
+
+do score prediction based on difficulty, player average, and round label/maybe biases
+
+## To Do
+
+Finish player plots
+
+Format output so we don't have to scroll through dozens of charts to find the right one
+
+Format bias table and plot it, make a bar chart for the biases for each person

@@ -1,7 +1,7 @@
 baseurl = "/TriviaStats/"
 languageCode = "en-us"
-title = "Trivia Stats"
-theme = "hugo-lithium"
+title = "Hail Science Trivia Statistics"
+theme = "paper"
 googleAnalytics = ""
 disqusShortname = ""
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
@@ -10,9 +10,6 @@ publishDir = "../TriviaStats"
 [permalinks]
     post = "/:year/:month/:day/:slug/"
 
-[[menu.main]]
-    name = "About"
-    url = "/about/"
 [[menu.main]]
     name = "GitHub"
     url = "https://github.com/pinarda/TriviaStats"
