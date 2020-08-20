@@ -1,8 +1,8 @@
 {
-    "path" : "~/git/Trivia/source/content/post",
+    "path" : "~/git/Trivia/source/content",
     "sortOrder" : [
         {
-            "ascending" : true,
+            "ascending" : false,
             "columnIndex" : 2
         }
     ]
