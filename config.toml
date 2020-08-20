@@ -1,6 +1,6 @@
 baseurl = "/TriviaStats/"
 languageCode = "en-us"
-title = "Hail Science Trivia Statistics"
+title = "Hail Science Trivia"
 theme = "paper"
 googleAnalytics = ""
 disqusShortname = "https-pinarda-github-io-triviastats-1"

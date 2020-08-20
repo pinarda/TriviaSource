@@ -16,11 +16,32 @@ First, load the trivia_stats.R source file, which contains all functions for gen
 source("trivia_stats.R")
 ```
 
+## Joker Table
+
+The only practical chart I have made so far. This chart takes into account both the creators's average round difficulty and your own bias toward or against that creator to given you an overall sense of how much better than average you tend to do on rounds made by that creator (and therefore, who you should pick to joker today).
+
+Estimated Score Per Round = Average Score + Round Difficulty + Bias
+
+
+```{r}
+joker_table_heatmap()
+scores_boxplot_player("Alex")
+scores_boxplot_player("Chris")
+scores_boxplot_player("Dad")
+scores_boxplot_player("Drew")
+scores_boxplot_player("Ichigo")
+scores_boxplot_player("Jeff")
+scores_boxplot_player("Jenny")
+scores_boxplot_player("Megan")
+scores_boxplot_player("Mom")
+scores_boxplot_player("Zach")
+```
+
 ## Bias Heatmap
 
-Each column represents the scores on one person's round that week. Higher scores in a cell mean that the player scores higher than the average on that player's rounds.
+Each column represents the scores on one person's round that week. Higher scores in a cell mean that the player tends to gain more points than other players on that creator's rounds.
 
-Score Per Round = Average Player Ability + Round Difficulty + Bias + Randomness
+Estimated Score Per Round = Average Score + Round Difficulty + Bias
 
 ```{r}
 bias_table_heatmap()
@@ -49,3 +70,19 @@ generate_creator_plot("Mom")
 generate_creator_plot("Zach")
 ```
 
+## Scores by Player
+
+Each of the following plots shows the final score for a single player each week. Notice the p-value in the bottom right side of each output summary. If this value is less than 0.05, this result is considered unlikely to happen by pure chance and may indicate an underlying trend. 
+
+```{r paged.print=TRUE}
+generate_player_plot("Alex")
+generate_player_plot("Chris")
+generate_player_plot("Dad")
+generate_player_plot("Drew")
+generate_player_plot("Ichigo")
+generate_player_plot("Jeff")
+generate_player_plot("Jenny")
+generate_player_plot("Megan")
+generate_player_plot("Mom")
+generate_player_plot("Zach")
+```
