@@ -1,6 +1,21 @@
 {
     "debugBreakpointsState" : {
         "breakpoints" : [
+            {
+                "editor_line_number" : 73,
+                "editor_state" : 2,
+                "function_name" : "get_creator_round_scores",
+                "function_steps" : "",
+                "id" : 0,
+                "is_package_breakpoint" : false,
+                "is_pending_debug_completion" : false,
+                "line_number" : 73,
+                "needs_updated_steps" : false,
+                "package_name" : "",
+                "path" : "~/git/Trivia/source/content/post/trivia_stats.R",
+                "state" : 2,
+                "type" : 0
+            }
         ]
     }
 }
