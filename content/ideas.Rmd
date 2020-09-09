@@ -1,5 +1,5 @@
 ---
-title: "02 - Notes and Ideas"
+title: "03 - Notes and Ideas"
 author: "Alex Pinard"
 date: "2020-08-18"
 output: html_document
@@ -21,4 +21,4 @@ Finish player plots
 
 Format output so we don't have to scroll through dozens of charts to find the right one
 
-Format bias table and plot it, make a bar chart for the biases for each person
+Whose nights get Jokered most, how often was it the correct choice to joker their rounds

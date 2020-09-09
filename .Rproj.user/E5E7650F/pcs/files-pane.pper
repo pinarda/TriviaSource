@@ -1,9 +1,9 @@
 {
-    "path" : "~/git/Trivia/source/content",
-    "sortOrder" : [
+    "path": "~/git/Trivia/source/content",
+    "sortOrder": [
         {
-            "ascending" : false,
-            "columnIndex" : 2
+            "columnIndex": 2,
+            "ascending": false
         }
     ]
 }

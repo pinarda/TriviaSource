@@ -1,0 +1,76 @@
+---
+title: "01 - Joker Stats"
+author: "Alex Pinard"
+date: "2020-09-09"
+output: html_document
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE)
+```
+
+First, load the trivia_stats.R source file, which contains all functions for generating statistics:
+
+```{r, results="hide", message=FALSE}
+source("trivia_stats.R")
+```
+
+## Joker Table
+
+This chart takes into account both the creators's average round difficulty and your own bias toward or against that creator to given you an overall sense of how much better than average you tend to do on rounds made by that creator (and therefore, who you should pick to joker today).
+
+Estimated Score Per Round = Average Score + Round Difficulty + Bias
+
+
+```{r}
+joker_table_heatmap()
+```
+
+## Joker scores using personal judgement to select joker round
+
+This chart shows how many points a player does on average on their joker round than on the average round. Compare to the above chart.
+
+```{r}
+get_judgement_table()
+```
+
+## Percentage of Correct Jokers Table
+
+This chart shows the percentage of time a player selects the correct round to joker (the round they scored highest on).
+
+```{r}
+correct_joker_plot()
+```
+
+This value is the percentage of time that the winner of the trivia night would be different if there were no jokers in play.
+
+```{r}
+joker_win_percent()
+```
+
+## Ichigo and Chris Coefficients
+
+These charts shows how many points a player's judgement score would increase or decrease if they copy Ichigo's or Chris's Joker round every week.
+```{r}
+ichigo_coefficient_table()
+chris_coefficient_table()
+```
+
+## Full distribution of scores by creator
+
+These charts display the full distribution of scores for each player based on the rounds each person created.
+
+```{r}
+scores_boxplot_player("Alex")
+scores_boxplot_player("Chris")
+scores_boxplot_player("Dad")
+scores_boxplot_player("Drew")
+scores_boxplot_player("Ichigo")
+scores_boxplot_player("Jeff")
+scores_boxplot_player("Jenny")
+scores_boxplot_player("Megan")
+scores_boxplot_player("Mom")
+scores_boxplot_player("Zach")
+```
+
