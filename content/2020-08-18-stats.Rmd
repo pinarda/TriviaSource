@@ -24,6 +24,7 @@ Estimated Score Per Round = Average Score + Round Difficulty + Bias
 
 ```{r}
 bias_table_heatmap()
+
 ```
 
 ## Scores on a Creator's Round
