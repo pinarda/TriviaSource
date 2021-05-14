@@ -16,6 +16,15 @@ First, load the trivia_stats.R source file, which contains all functions for gen
 source("trivia_stats.R")
 ```
 
+## Player Similarity Table
+
+This chart measures how similar players scores are on a given round (after adjusting for round difficulty).
+
+```{r}
+player_similarity_table()
+```
+
+
 ## Joker Table
 
 This chart takes into account both the creators's average round difficulty and your own bias toward or against that creator to given you an overall sense of how much better than average you tend to do on rounds made by that creator (and therefore, who you should pick to joker today).
@@ -51,7 +60,8 @@ joker_win_percent()
 
 ## Ichigo and Chris Coefficients
 
-These charts shows how many points a player's judgement score would increase or decrease if they copy Ichigo's or Chris's Joker round every week.
+These charts shows how many points a player's judgement score would increase or decrease if they had just copied Ichigo's or Chris's Joker round every week.
+
 ```{r}
 ichigo_coefficient_table()
 chris_coefficient_table()
