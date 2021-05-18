@@ -124,7 +124,7 @@ I said before that this will underestimate Alex's performance on each round. Why
 
 Our best estimate of how well real Alex will perform on this round is given by $E(Y|X=x)$, if we want to get as close as possible to real Alex's score, we can stop here. However, if roboAlex always predicts real Alex's score, it won't behave like a real trivia player. It won't ever have an exceptionally good or bad night, and is unlikely to ever be a real threat to win. What we want to do is make roboAlex's scores as variable as real Alex's. The following equation is also found using the conditional multivariate normal:
  
-$Var(Y|X=x) = \Sigma_Y - \Sigma_{YX} \Sigma_{X}^{-1} \Sigma{XY}$
+$Var(Y|X=x) = \Sigma_Y - \Sigma_{YX} \Sigma_{X}^{-1} \Sigma_{XY}$
 
 Most of these terms we have seen, but we will break down the rest and interpret the equation:
 
