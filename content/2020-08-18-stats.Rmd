@@ -17,6 +17,14 @@ source("trivia_stats.R")
 
 ```
 
+## Player Similarity Table
+
+This chart measures how similar players scores are on a given round (after adjusting for round difficulty). Basically - bias chart measures how well a player does on another player's rounds, similarity table measures how similarly they perform on all the rest of the rounds.
+
+```{r}
+player_similarity_table()
+```
+
 ## Bias Heatmap
 
 Each column represents the scores on one person's round that week. Higher scores in a cell mean that the player tends to gain more points than other players on that creator's rounds.

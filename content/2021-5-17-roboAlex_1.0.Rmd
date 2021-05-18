@@ -1,0 +1,232 @@
+---
+title: "00 - roboAlex"
+author: "Alex Pinard"
+date: "5/17/2021"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## roboAlex 1.0
+
+
+```{r, results="hide", message=FALSE, echo=FALSE}
+source("trivia_stats.R")
+library(tidyr)
+sDict <- get_all_scores()
+allScores <- as.data.frame(sDict)
+# Remove the initial all NA value
+allScores <- allScores[rowSums(is.na(allScores)) != ncol(allScores), ]
+```
+
+
+```{r}
+head(allScores)
+```
+
+roboAlex 1.0 is simple. He knows three things: The how well human Alex does on a typical round, whether or not human Alex jokered the current trivia round (this one is cheating a bit), and how well everyone else did on the current trivia round. Below I'll go into more detail about how each of these factors contribute to the overall score. But first, we will check some assumptions we made about the data.
+
+## Check for normality
+
+roboAlex makes a critical assumption that players' scores on a between rounds are independent and normally distributed. We are going to assume that the round scores are independent for now, and that anyone over/underperforming on a night is purely due to getting a good/bad set of questions for them. It seems reasonable anyway.
+
+The histogram below shows the distribution of human Alex's scores on each round, with a normal distribution overlaid. A really really simple roboAlex might just use this normal distribution and no other information, but his scores on most rounds would not convince you that this was the human Alex.
+
+The Q-Q plot compares the data we have to a normal distribution. If our data is truly normally distributed, our data would fall very close to the diagonal line. It looks like the ends of the distribution don't match up to what we would expect from a normal exactly, but it is close enough to be a reasonable approximation. The output from the k-s test, specifically the p-value, indicates whether there is reasonable belief that the data is not drawn from a specified distribution. The usual cutoff for the p-value is 0.05, and since our p-value is well below, we conclude that the data is probably not exactly normal. It's not that important to know what these are doing as long as you see the histogram.
+
+```{r}
+ggplot(allScores, aes(x = Alex)) + 
+  geom_histogram(aes(y = ..density..), binwidth=1) + 
+  stat_function(fun = dnorm, args = list(mean = mean(allScores$Alex, na.rm=TRUE), sd = sd(allScores$Alex, na.rm=TRUE)))
+
+randomUnif <- runif(length(na.omit(allScores$Alex)), -0.5, 0.5)
+qqData <- na.omit(allScores$Alex) + randomUnif
+qqnorm(qqData, )
+qqline(qqData)
+
+ks.test(na.omit(allScores$Alex), "pnorm", mean(allScores$Alex, na.rm=TRUE), sd(allScores$Alex, na.rm=TRUE))
+```
+So maybe the tails are a bit light for a normal distribution. I doubt anyone will notice the difference during trivia night though.
+
+## Thing 1: Human Alex's average round score
+
+Now we'll look at how roboAlex uses each piece of information it has available.
+
+```{r}
+library(ggplot2)
+meanAlex <- mean(allScores$Alex, na.rm=TRUE)
+meanAlex
+```
+
+This first quantity represents the base score that roboAlex predicts human Alex will score on a given round, without any additional information.
+
+## Thing 2: Did human Alex joker this round?
+
+Human Alex picks rounds based on the theme and creator of each round. roboAlex does not know about these things, he only knows how well everyone else did on the round, but he trusts human Alex knows what he is doing and assigns Alex's mean score on Joker rounds as the base score for his joker round. I change the base score this way because when I compared roboAlex's predicted score on Joker rounds to real Alex's actual scores, they tended to be lower. Knowledge of the creator and theme appear to have a predictive effect on round score that cannot be fully inferred by just looking at everyone else's scores. This is good news for roboAlex 2.0, which will look at these quantities when making predictions.
+
+However, there is a flaw. Based on everyone's scores on the round, you can make an informed guess about the creator of the round/theme, and vice versa. By using human Alex's mean joker score as the base score for the round and also taking into account everyone else's scores, we are double-counting the information about creator and theme. Since this information usually benefits Alex on joker rounds, this gives roboAlex a bit of an extra advantage on Joker rounds compared to human Alex. Luckily, we will see in the next section that roboAlex 1.0 also tends to slightly underperform on non-joker rounds. These flaws come close to evening out in the overall expected score for the night.
+
+
+```{r}
+get_average_joker_round("Alex")
+```
+
+The above score represents the base score that roboAlex predicts Alex will score on a joker round, without any additional information.
+
+## Thing 3: How well did everyone else do on this round?
+
+Knowing how well everyone else did on a round makes roboAlex more realistic in two ways. First, if a round is difficult, players tend to score lower on a round, and roboAlex can adjust his score down accordingly. Second, as we saw in the player similarity table, some players' scores tend to be more predictive of Alex's score than others. For example, we would hope to see roboAlex doing better on rounds where Dad and Ichigo also performed well (this might mean it is a round about something that real Alex is good at, like games). Likewise, if Mom does really well, it is more likely be a round that human Alex is not good at (like plants... or maybe a Dad-created round, which are surprisingly bad for Alex).
+
+We represent the relationships between players, called the joint variability, in a covariance matrix. It's somewhat like the player similarity matrix, but it has each player's score variance on the diagonals, and it happens to be positive everywhere (All players scores tend to move in tandem due to the changes in round difficulty, even if they are not similar players. This has a larger effect than player relationships, and adding those two effects results in a positive matrix.)
+
+```{r}
+player_covariance_table()
+covTable <- get_player_covariance_scores()
+```
+
+## Putting it all together - Prediction
+
+
+It is important to note that just because each of our player's scores follows an (approximate) normal distributions does NOT mean that the joint distribution will follow a multivariate normal. But I'm going to assume that without evidence here, because I'll get to it later (maybe...). We'll see that the approximation is pretty accurate later on, so I am not too worried about the assumption in this fairly simple situation.
+
+The mean values and covariances are the only variables we need to simulate what is called a conditional multivariate normal distribution. All we need now are the proper equations.
+
+Penn State has a good [explanation](https://online.stat.psu.edu/stat505/lesson/6/6.1) of the math behind the conditional multivariate normal, but the following equation is what we need:
+
+$E(Y|X=x) = \mu_Y + \Sigma_{YX} \Sigma_{X}^{-1} (x - \mu_X)$
+
+Breaking down this equation: 
+
+
+$E(Y|X=x)$ is our prediction, how well we think roboAlex is going to score given that everyone else has scored $x$ (a vector). 
+
+$\mu_Y$ is how well human Alex scores on an average round, this is the mean calculated in part 1 (or part 2, if this is a joker round). To this term we add an adjustment based on how everyone else did, which is comprised of the next three terms.
+
+$\Sigma_{YX}$ is a vector representing one row of the covariance matrix seen in part 3. In particular, it is the row corresponding to the player Alex, without the entry located at (Alex, Alex). This entries of this vector tell us how much Alex's score would be adjusted up or down if we were given a single other player's performance.
+
+$\Sigma_{X}^{-1}$ is where most of the magic happens. This matrix can be found by taking the covariance matrix from part 3, removing the Alex row and column, and inverting it. This is called a [precision matrix](https://stephens999.github.io/fiveMinuteStats/normal_markov_chain.html). This matrix allows us to quantify how much independent information we receive from each player's score to properly adjust our estimate. 
+
+In part 2 I mentioned that we have a problem where we are double counting some of the factors that contribute to the overall score. We run the risk of doing the same thing here. For example: If we know that both Zach and Jenny did exceptionally well on a given round, we can make a pretty good guess that Megan also did well on that round. Actually being told that Megan also did well does not give us as much additional information as it would if we did not know Zach and Jenny's scores, because those scores are not independent of each other. If we don't take this into account and revise our estimate of Alex's score upward by the full amount each time we see that someone did well on this round, we end up accounting for the low difficulty of this round several times and our predicted score will be much too high. $\Sigma_{X}^{-1}$ solves this problem for us. This approach might also be used to solve the problem in part 2, once we have data on how themes adjust player scores.
+
+$(x - \mu_X)$ is a vector representing everyone else's performance on this round relative to their average score. When multiply it by the quantity $\Sigma_{YX}\Sigma_{X}^{-1}$, each term in the resulting summation tells us how much the individual player performances affect the overall round estimate for Alex.
+
+I said before that this will underestimate Alex's performance on each round. Why? Because whenever we are playing a round, the creator for that round does not receive a score (at least not one worth using to predict with). So when we are playing Ichigo's round, her contribution to Alex's predicted score, which would normally be positive, is zero. To account for this we could recompute the covariance matrix and leave out one player each time, and use the appropriate table when we are on a particular player's round. This might do a better job of taking into account round creator, but it takes a lot of space on the google sheet and adds a bit of complexity I haven't had time to deal with yet. We could also try using the bias table estimates and adding in the bonus from the round creator, though that also risks double-counting the creator since the other player's scores are taking that into account already.
+
+## Putting it all together - Simulation
+
+Our best estimate of how well real Alex will perform on this round is given by $E(Y|X=x)$, if we want to get as close as possible to real Alex's score, we can stop here. However, if roboAlex always predicts real Alex's score, it won't behave like a real trivia player. It won't ever have an exceptionally good or bad night, and is unlikely to ever be a real threat to win. What we want to do is make roboAlex's scores as variable as real Alex's. The following equation is also found using the conditional multivariate normal:
+ 
+$Var(Y|X=x) = \Sigma_Y - \Sigma_{YX} \Sigma_{X}^{-1} \Sigma{XY}$
+
+Most of these terms we have seen, but we will break down the rest and interpret the equation:
+
+$\Sigma_Y$ is how much real Alex's scores naturally vary. A 9 on this round, a 4 on that. It happens.
+
+$\Sigma_XY$ is the transposed version of $\Sigma_YX$. Basically, we took the vector and stood it up on it's end. This is needed to make the matrix multiplication work out.
+
+In English, we are taking real Alex's natural score variability, and removing some of it because we can be more sure about the range of possible scores given the information we have from other players and how Alex's scores usually line up with theirs. Notice that this term does not depend on what the player's actual scores are, just that we have knowledge of them. This means all histograms made from predicting a round score should look about the same, just shifted one way or the other.
+
+```{r}
+Sigma_XY <- covTable[c(1:7, 9, 10), 8]
+Sigma_YX <- covTable[c(1:7, 9, 10), 8]
+Sigma_X <- covTable[c(1:7, 9, 10), c(1:7, 9, 10)]
+Sigma_Y <- covTable[8,8]
+
+
+meanPlayerScores <- c(mean(allScores$Zach, na.rm=TRUE), 
+                     mean(allScores$Megan, na.rm=TRUE),
+                     mean(allScores$Ichigo, na.rm=TRUE),
+                     mean(allScores$Jenny, na.rm=TRUE),
+                     mean(allScores$Mom, na.rm=TRUE),
+                     mean(allScores$Dad, na.rm=TRUE),
+                     mean(allScores$Chris, na.rm=TRUE),
+                     mean(allScores$Jeff, na.rm=TRUE),
+                     mean(allScores$Drew, na.rm=TRUE))
+```
+
+
+All that's left is to pick random draws from the distribution. To start, let's not tell roboAlex anything about how well other players did and see how it lines up with human Alex's score distribution.
+
+```{r}
+set.seed(6)
+# Just set (sampleScores - meanPlayerScores) to zero to force everyone to do average
+roboAlexMean <-  meanAlex + Sigma_YX %*% solve(Sigma_X) %*% c(0, 0, 0, 0, 0, 0, 0, 0, 0)
+roboAlexVariance <- Sigma_Y 
+
+# Generate 100 draws from a normal distribution using our estimated mean and variance
+predictions <- data.frame("preds"=rnorm(388, roboAlexMean, sqrt(roboAlexVariance)))
+
+# No patience for ggplot anymore
+hist(predictions$preds, col=rgb(1,0,0,0.5),xlim=c(0,12), main="Histogram of simulated (red) vs actual (blue) round scores", xlab="Score")
+hist(allScores$Alex, col=rgb(0,0,1,0.5), add=T)
+```
+
+Not bad! Now let's tell roboAlex that everyone did exactly as well as average and see how this changes the estimate.
+
+
+```{r}
+set.seed(6)
+# Just set (sampleScores - meanPlayerScores) to zero to force everyone to do average
+roboAlexMean <-  meanAlex + Sigma_YX %*% solve(Sigma_X) %*% c(0, 0, 0, 0, 0, 0, 0, 0, 0)
+roboAlexVariance <- Sigma_Y -  Sigma_YX %*% solve(Sigma_X) %*% Sigma_XY
+
+# Generate 100 draws from a normal distribution using our estimated mean and variance
+predictions <- data.frame("preds"=rnorm(388, roboAlexMean, sqrt(roboAlexVariance)))
+
+# No patience for ggplot anymore
+hist(predictions$preds, col=rgb(1,0,0,0.5),xlim=c(0,12), main="Histogram of simulated (red) vs actual (blue) round scores", xlab="Score", breaks = seq(from=0.5, to=11.5, by=1))
+hist(allScores$Alex, col=rgb(0,0,1,0.5), breaks = seq(from=0.5, to=11.5, by=1), add=T)
+```
+Seems reasonable, if everyone got a middling score we are a lot more confident that human Alex would have as well. What about one of those rounds about animated TV that Jenny, Zach and Megan always do pretty well on but no one else does? I just made all these scores up, so I can't compare them to my actual scores. Maybe I'll do that at some point though.
+
+
+```{r}
+set.seed(6)
+# Scores in order: Zach, Megan, Ichigo, Jenny, Mom, Dad, Chris, Jeff, Drew
+sampleScores <- c(8, 8, 5, 9, 4, 3, 4, 3, 3)
+
+# Put it all into our equations
+roboAlexMean <-  meanAlex + Sigma_YX %*% solve(Sigma_X) %*% (sampleScores - meanPlayerScores)
+roboAlexVariance <- Sigma_Y -  Sigma_YX %*% solve(Sigma_X) %*% Sigma_XY
+
+# Generate 100 draws from a normal distribution using our estimated mean and variance
+predictions <- data.frame("preds"=rnorm(388, roboAlexMean, sqrt(roboAlexVariance)))
+
+# No patience for ggplot anymore
+hist(predictions$preds, col=rgb(1,0,0,0.5),xlim=c(0,12), main="Histogram of simulated (red) vs actual (blue) round scores", xlab="Score", breaks = seq(from=0.5, to=11.5, by=1))
+hist(allScores$Alex, col=rgb(0,0,1,0.5), breaks = seq(from=0.5, to=11.5, by=1), add=T)
+```
+
+Yep. What about an easy round where everyone does well? Again, maybe I'll find rounds with high averages and compare my distributions at some point. For now we are just seeing how the estimates change compared to my historical scores when we add information about everyone else's scores.
+
+```{r}
+set.seed(6)
+# Scores in order: Zach, Megan, Ichigo, Jenny, Mom, Dad, Chris, Jeff, Drew
+sampleScores <- c(8, 8, 9, 9, 9, 10, 8, 9, 8)
+
+# Put it all into our equations
+roboAlexMean <-  meanAlex + Sigma_YX %*% solve(Sigma_X) %*% (sampleScores - meanPlayerScores)
+roboAlexVariance <- Sigma_Y -  Sigma_YX %*% solve(Sigma_X) %*% Sigma_XY
+
+# Generate 100 draws from a normal distribution using our estimated mean and variance
+predictions <- data.frame("preds"=rnorm(388, roboAlexMean, sqrt(roboAlexVariance)))
+# Truncate to 10 if prediction is above 10
+predictions$preds[which(predictions$preds>10)] = 10
+
+# No patience for ggplot anymore
+hist(predictions$preds, col=rgb(1,0,0,0.5),xlim=c(0,12), main="Histogram of simulated (red) vs actual (blue) round scores", xlab="Score", breaks = seq(from=0.5, to=12.5, by=1))
+hist(allScores$Alex, col=rgb(0,0,1,0.5), breaks = seq(from=0.5, to=11.5, by=1), add=T)
+```
+Dad getting a 10 and Ichigo getting a 9 both help a lot, roboAlex has close to an even chance of either score. Note that I truncated all predicted values above 10 to 10, assuming this round does not have bonus questions.
+
+That's all for now!
+
+Coming in version 1.1:
+
+Fix the overestimation on joker rounds, get historical data about joker score distribution and compare to the estimate given everyone else's score on those rounds, use the difference as an adjustment.
+
+Fix the underestimation generally, implicitly take creator into account by creating new covariance matrices for each creator (if we have enough data to make it reliable)
+
+Get historical data on everyone scores for scenarios (easy rounds, certain themes, etc), so we can see how well roboAlex's estimates line up with human Alex's.
