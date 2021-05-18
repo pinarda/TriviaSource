@@ -21,7 +21,7 @@ allScores <- as.data.frame(sDict)
 allScores <- allScores[rowSums(is.na(allScores)) != ncol(allScores), ]
 ```
 
-roboAlex 1.0 is simple. He knows three things: how well human Alex does on a typical round, whether or not human Alex jokered the current trivia round (this one is cheating a bit), and how well everyone else did on the current trivia round. I wish I only had to know three things. 
+roboAlex 1.0 is simple. He knows three things: how well human Alex does on a typical trivia  round, whether or not human Alex jokered the current round (this one is cheating a bit), and how well everyone else did on the current round. I wish I only had to know three things. 
 
 Below I'll go into more detail about how each of these factors contribute to the overall score. But first, we will check some assumptions we made about the data.
 
@@ -126,13 +126,15 @@ Our best estimate of how well real Alex will perform on this round is given by $
  
 $Var(Y|X=x) = \Sigma_Y - \Sigma_{YX} \Sigma_{X}^{-1} \Sigma_{XY}$
 
-Most of these terms we have seen, but we will break down the rest and interpret the equation:
+Some of these terms we have seen, but we will break down the rest and interpret the equation:
 
-$\Sigma_Y$ is how much real Alex's scores naturally vary. A 9 on this round, a 4 on that. It happens.
+$Var(Y|X=x)$ is how much variance Alex's scores should have after taking into account everyone else's scores $x$. Notice that $x$ does not appear in the right-hand side of the equation. This means that knowing everyone else's scores reduces the variability, but it does not actually matter what those scores are, the variability will always be reduced by the same amount.
+
+$\Sigma_Y$ is how much human Alex's scores naturally vary. A 9 on this round, a 4 on that. It happens.
 
 $\Sigma_{XY}$ is the transposed version of $\Sigma_{YX}$. Basically, we took the vector and stood it up on its end. This is needed to make the matrix multiplication work out.
 
-In English, we are taking real Alex's natural score variability and removing some of it. This is done because we can be more sure about the range of possible scores given the information we have from other players and how Alex's scores usually line up with theirs. Notice that this term does not depend on what the player's actual scores are, just that we have knowledge of them. This means all histograms made from predicting a round score should look about the same, just shifted one way or the other.
+In English, we are taking real Alex's natural score variability and removing some of it. We can do this because we are more sure about the range of possible scores given the information we have from other players and how Alex's scores usually line up with theirs. Notice that this term does not depend on what the player's actual scores are, just that we have knowledge of them. This means all histograms made from predicting a round score should look about the same, just shifted one way or the other.
 
 ```{r}
 Sigma_XY <- covTable[c(1:7, 9, 10), 8]
@@ -235,20 +237,22 @@ hist(predictions$preds, col=rgb(1,0,0,0.5),xlim=c(0,12),
 hist(allScores$Alex, col=rgb(0,0,1,0.5),
      breaks = seq(from=0.5, to=11.5, by=1), add=T, prob=TRUE)
 ```
-Dad getting a 10 and Ichigo getting a 9 both help a lot, roboAlex has close to an even chance of either score. Note that I truncated all predicted values above 10 to 10, assuming this round does not have bonus questions. The behavior seems plausible! With a few tweaks it might be hard to tell human Alex and roboAlex apart...
+Dad getting a 10 and Ichigo getting a 9 both help a lot, roboAlex has close to an even chance of either score. Note that I truncated all predicted values above 10, assuming this round does not have bonus questions. The behavior seems plausible! With a few tweaks it might be hard to tell human Alex and roboAlex apart...
 
 That's all for now!
 
 
 
 
-Coming in version 1.1:
+Coming in version 1.1/1.2:
 
 Fix the overestimation on joker rounds, get historical data about joker score distribution and compare to the estimate given everyone else's score on those rounds, use the difference as an adjustment.
 
 Fix the underestimation generally, implicitly take creator into account by creating new covariance matrices for each creator (if we have enough data to make it reliable)
 
-Get historical data on everyone scores for scenarios (easy rounds, certain themes, etc), so we can see how well roboAlex's estimates line up with human Alex's.
+Get historical data on everyone scores for scenarios (easy rounds, certain themes, etc), so we can see how well roboAlex's estimates line up with human Alex's. Do the same for the overall night scores to see if roboAlex is well calibrated.
+
+Try using htmlwidgets to make an interactive roboAlex predictor using a sample set of scores.
 
 Try normalizing the round scores - the non-normality might be caused because 8 was the highest possible score for many rounds.
 
