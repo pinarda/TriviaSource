@@ -1,4 +1,4 @@
-baseurl = "/TriviaStats/"
+baseurl = "TriviaStats/"
 languageCode = "en-us"
 title = "Hail Science Trivia"
 theme = "paper"
