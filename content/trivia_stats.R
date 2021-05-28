@@ -813,8 +813,8 @@ Alex   -0.6761419 -0.30740131 -0.12161503
 Drew   -0.2873242  1.09548299  0.34870422"),
                     header=TRUE,as.is=TRUE)
   
-  fig1 <- plot_ly(dat, x = ~PC2, y = ~PC3, z = ~PC4, name=~Name, scene="scene1",  type="scatter3d", text=~Name, mode="markers+text")
-  fig1 <- fig1 %>% layout(title = "3D Subplots",
+  fig1 <- plot_ly(dat, x = ~PC2, y = ~PC3, z = ~PC4, name=~Name, scene="scene1",  type="scatter3d", text=~Name, mode="markers+text", showlegend=FALSE)
+  fig1 <- fig1 %>% layout(title = "3D Player Similarity (proximity implies similarity)",
                         # select the type of aspectmode
                         scene1 = list(aspectmode='manual',
                         aspectratio = list(x=0.9867, y=0.7604, z=0.5431)))
