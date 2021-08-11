@@ -9,34 +9,136 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Round List
+# Round Table
 
 ```{r, results="hide", message=FALSE, echo=FALSE}
 library(reactable)
 source("trivia_stats_2.R")
 ```
 
-```{r}
+```{r, echo=FALSE}
 r <- create_rounds_data_frame(normalize=FALSE)
+names = r$Round.Name
 s= r[,!(names(r) =="X")]
-reactable(s, filterable=TRUE, striped=TRUE, bordered=TRUE, columns = list(Date = colDef(width=100, name="Date"),
-                                             Round.Number = colDef(width=40, name="#"),
-                                             Possible.Points = colDef(width=50, name="Max Pts"),
-                                             Creator = colDef(maxWidth=70, name="Creator"),
-                                             Round.Name = colDef(maxWidth=100, name="Name"),
-                                             Major.Category = colDef(width=120, name="Category"),
-                                             Minor.Category = colDef(width=120, name="Subcategory"),
-                                             Minor.Category.2 = colDef(width=120, name="Subcategory 2"),
-                                             Zach = colDef(maxWidth=60),
-                                             Megan = colDef(maxWidth=65),
-                                             Ichigo = colDef(maxWidth=60),
-                                             Jenny = colDef(maxWidth=60),
-                                             Mom = colDef(maxWidth=60),
-                                             Dad = colDef(maxWidth=60),
-                                             Chris = colDef(maxWidth=60),
-                                             Alex = colDef(maxWidth=60),
-                                             Drew = colDef(maxWidth=60)
-                                             ))
+s= s[,!(names(s) =="Round.Name")]
+
+dateTab = strsplit(s$Date, ".", fixed=TRUE)
+m=rep(NA, length(dateTab))
+d=rep(NA, length(dateTab))
+y=rep(NA, length(dateTab))
+for(i in 1:length(dateTab)){ 
+  m[i] = dateTab[[i]][1]
+  d[i] = dateTab[[i]][2]
+  y[i] = dateTab[[i]][3]
+}
+
+ymd = rep(NA, length(dateTab))
+for(i in 1:length(dateTab)){ 
+  ymd[i] = paste(d[i], ".", m[i], ".", y[i], sep="")
+}
+  
+reactable(cbind(names, ymd, s), filterable=TRUE, striped=TRUE, bordered=TRUE,
+          columns = list(                         names = colDef(maxWidth=200, name="Name", style = list(cursor = "pointer", position = "sticky", left = 0, background = "#fff", zIndex = 1),
+                                headerStyle = list(position = "sticky", left = 0, background = "#fff", zIndex = 1)
+                              ),
+                         ymd = colDef(width=80, name="Date"),
+                         Date = colDef(width=100, name="Date", show=FALSE),
+                         Round.Number = colDef(width=40, name="#"),
+                         Possible.Points = colDef(width=70, name="Max Pts"),
+                         Creator = colDef(maxWidth=70, name="Creator"),
+
+                         Major.Category = colDef(width=120, name="Category"),
+                         Minor.Category = colDef(width=100, name="Subcategory"),
+                         Minor.Category.2 = colDef(width=100, name="Subcategory 2"),
+                         Zach = colDef(maxWidth=60),
+                         Megan = colDef(maxWidth=65),
+                         Ichigo = colDef(maxWidth=60),
+                         Jenny = colDef(maxWidth=60),
+                         Mom = colDef(maxWidth=60),
+                         Dad = colDef(maxWidth=60),
+                         Chris = colDef(maxWidth=60),
+                         Alex = colDef(maxWidth=60),
+                         Drew = colDef(maxWidth=60)
+                         ),
+          
+          onClick = "select",
+          theme = reactableTheme(
+            rowSelectedStyle = list(backgroundColor = "#eee", boxShadow = "inset 2px 0 0 0 #ffa62d")
+          ),
+  #selection = "multiple",
+  resizable = TRUE,
+  wrap = FALSE,
+  pagination = FALSE,
+  height = 450,
+          )
+```
+
+# Normalized, Difficulty Adjusted Round Table
+
+```{r, echo=FALSE}
+r <- create_rounds_data_frame(normalize=TRUE)
+names = r$Round.Name
+s= r[,!(names(r) =="X")]
+s= s[,!(names(s) =="Round.Name")]
+s= s[,!(names(s) =="Possible.Points")]
+
+difficulty = rep(NA, length(s$Date))
+for(i in 1:length(s$Date)){
+  difficulty[i] = mean(unlist(s[i,7:15]), na.rm=TRUE)
+  s[i,7:15] = s[i,7:15] - mean(unlist(s[i,7:15]), na.rm=TRUE)
+}
+
+dateTab = strsplit(s$Date, ".", fixed=TRUE)
+m=rep(NA, length(dateTab))
+d=rep(NA, length(dateTab))
+y=rep(NA, length(dateTab))
+for(i in 1:length(dateTab)){
+  m[i] = dateTab[[i]][1]
+  d[i] = dateTab[[i]][2]
+  y[i] = dateTab[[i]][3]
+}
+
+
+ymd = rep(NA, length(dateTab))
+for(i in 1:length(dateTab)){ 
+  ymd[i] = paste(d[i], ".", m[i], ".", y[i], sep="")
+}
+
+reactable(cbind(names, ymd, s, difficulty), filterable=TRUE, striped=TRUE, bordered=TRUE,
+          columns = list(                         names = colDef(maxWidth=200, name="Name", style = list(cursor = "pointer", position = "sticky", left = 0, background = "#fff", zIndex = 1),
+                                headerStyle = list(position = "sticky", left = 0, background = "#fff", zIndex = 1)
+                              ),
+                         ymd = colDef(width=80, name="Date"),
+                         Date = colDef(width=100, name="Date", show=FALSE),
+                         Round.Number = colDef(width=40, name="#"),
+                         difficulty = colDef(width=70, name="Mean Score", maxWidth=200, style = list(cursor = "pointer", position = "sticky", right = 0, background = "#fff", zIndex = 1),
+                                headerStyle = list(position = "sticky", right = 0, background = "#fff", zIndex = 1) ),
+                         Creator = colDef(maxWidth=70, name="Creator"),
+
+                         Major.Category = colDef(width=120, name="Category"),
+                         Minor.Category = colDef(width=100, name="Subcategory"),
+                         Minor.Category.2 = colDef(width=100, name="Subcategory 2"),
+                         Zach = colDef(maxWidth=60),
+                         Megan = colDef(maxWidth=65),
+                         Ichigo = colDef(maxWidth=60),
+                         Jenny = colDef(maxWidth=60),
+                         Mom = colDef(maxWidth=60),
+                         Dad = colDef(maxWidth=60),
+                         Chris = colDef(maxWidth=60),
+                         Alex = colDef(maxWidth=60),
+                         Drew = colDef(maxWidth=60)
+                         ),
+          
+          onClick = "select",
+          theme = reactableTheme(
+            rowSelectedStyle = list(backgroundColor = "#eee", boxShadow = "inset 2px 0 0 0 #ffa62d")
+          ),
+  #selection = "multiple",
+  resizable = TRUE,
+  wrap = FALSE,
+  pagination = FALSE,
+  height = 450, 
+          )  
 ```
 
 ```{r}
