@@ -34,7 +34,7 @@ for(i in 1:length(dateTab)){
 
 ymd = rep(NA, length(dateTab))
 for(i in 1:length(dateTab)){ 
-  ymd[i] = paste(d[i], ".", m[i], ".", y[i], sep="")
+  ymd[i] = paste(y[i], ".", m[i], ".", d[i], sep="")
 }
   
 reactable(cbind(names, ymd, s), filterable=TRUE, striped=TRUE, bordered=TRUE,
@@ -101,7 +101,7 @@ for(i in 1:length(dateTab)){
 
 ymd = rep(NA, length(dateTab))
 for(i in 1:length(dateTab)){ 
-  ymd[i] = paste(d[i], ".", m[i], ".", y[i], sep="")
+  ymd[i] = paste(y[i], ".", m[i], ".", d[i], sep="")
 }
 
 reactable(cbind(names, ymd, s, difficulty), filterable=TRUE, striped=TRUE, bordered=TRUE,
