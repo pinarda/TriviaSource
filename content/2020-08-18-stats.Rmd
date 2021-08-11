@@ -1,5 +1,5 @@
 ---
-title: "02 - Other Trivia Plots"
+title: "03 - Other Trivia Plots"
 author: "Alex Pinard"
 date: "2020-08-18"
 output: html_document

@@ -1,0 +1,53 @@
+---
+title: "00 - Rounds and Categories"
+author: "Alex Pinard"
+date: "2021-08-10"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Round List
+
+```{r, results="hide", message=FALSE, echo=FALSE}
+library(reactable)
+source("trivia_stats_2.R")
+```
+
+```{r}
+r <- create_rounds_data_frame(normalize=FALSE)
+s= r[,!(names(r) =="X")]
+reactable(s, filterable=TRUE, striped=TRUE, bordered=TRUE, columns = list(Date = colDef(width=100, name="Date"),
+                                             Round.Number = colDef(width=40, name="#"),
+                                             Possible.Points = colDef(width=50, name="Max Pts"),
+                                             Creator = colDef(maxWidth=70, name="Creator"),
+                                             Round.Name = colDef(maxWidth=100, name="Name"),
+                                             Major.Category = colDef(width=120, name="Category"),
+                                             Minor.Category = colDef(width=120, name="Subcategory"),
+                                             Minor.Category.2 = colDef(width=120, name="Subcategory 2"),
+                                             Zach = colDef(maxWidth=60),
+                                             Megan = colDef(maxWidth=65),
+                                             Ichigo = colDef(maxWidth=60),
+                                             Jenny = colDef(maxWidth=60),
+                                             Mom = colDef(maxWidth=60),
+                                             Dad = colDef(maxWidth=60),
+                                             Chris = colDef(maxWidth=60),
+                                             Alex = colDef(maxWidth=60),
+                                             Drew = colDef(maxWidth=60)
+                                             ))
+```
+
+```{r}
+#grid.arrange(p1, p2, p3, p4, p5, p6, p7, p8, p9, nrow=9, top = textGrob("Relative Category Strengths & Weaknesses",gp=gpar(fontsize=20,font=3)), heights=rep(1000,9))
+p1
+p2
+p3
+p4
+p5
+p6
+p7
+p8
+p9
+```
